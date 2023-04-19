@@ -33,14 +33,14 @@ def plot_weibull_pdf(data, params, title=''):
 
 
 # Plot the cdf of the distribution alongside the cdf
-def plot_weibull_cdf(params):
+def plot_weibull_cdf(params, place):
     dist = scipy.stats.weibull_min
     x = [i for i in range(DISTRIBUTION_MAX)]
     for year, p in params.items():
         cdf = dist.cdf(x, p[0], p[1], p[2])
         plt.plot(x, cdf, label=f'{year}')
 
-    plt.title('CDF of fitted weibull distributions')
+    plt.title(f'CDF of fitted weibull distributions ({place})')
     plt.legend()
     plt.xlabel('Probability')
     plt.ylabel('Wind speed (kts)')
@@ -49,17 +49,21 @@ def plot_weibull_cdf(params):
 
 # The main function
 def main():
-    data = get_wind_speeds_for_years('./data/mayo.csv', [2019, 2020, 2021])
+    places = ['Claremorris', 'Dunsany', 'Finner', 'Gurteen', 'Valentia']
+    for idx, file in enumerate(
+            ['./data/claremorris.csv', './data/dunsany.csv', './data/finner.csv', './data/gurteen.csv',
+             './data/valentia.csv']):
+        data = get_wind_speeds_for_years(file, [2018, 2020, 2022])
 
-    params2019 = np.array(fit_weibull(data['2019']))
-    params2020 = np.array(fit_weibull(data['2020']))
-    params2021 = np.array(fit_weibull(data['2021']))
+        params2019 = np.array(fit_weibull(data['2018']))
+        params2020 = np.array(fit_weibull(data['2020']))
+        params2021 = np.array(fit_weibull(data['2022']))
 
-    plot_weibull_pdf(data['2019'], params2019, title='PDF of fitted weibull distribution (2019)')
-    plot_weibull_pdf(data['2020'], params2020, title='PDF of fitted weibull distribution (2020)')
-    plot_weibull_pdf(data['2021'], params2021, title='PDF of fitted weibull distribution (2021)')
+        plot_weibull_pdf(data['2018'], params2019, title=f'PDF of fitted weibull distribution ({places[idx]} 2018)')
+        plot_weibull_pdf(data['2020'], params2020, title=f'PDF of fitted weibull distribution ({places[idx]} 2020)')
+        plot_weibull_pdf(data['2022'], params2021, title=f'PDF of fitted weibull distribution ({places[idx]} 2022)')
 
-    plot_weibull_cdf({2019: params2019, 2020: params2020, 2021: params2021})
+        plot_weibull_cdf({2018: params2019, 2020: params2020, 2022: params2021}, places[idx])
 
 
 if __name__ == '__main__':

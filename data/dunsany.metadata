@@ -1,0 +1,16 @@
+Station Name: DUNSANY
+Station Height: 83 M
+Latitude:53.516  ,Longitude: -6.660
+
+
+date:  -  Date and Time (utc)
+rain:  -  Precipitation Amount (mm)
+temp:  -  Air Temperature (C)
+wetb:  -  Wet Bulb Temperature (C)
+dewpt: -  Dew Point Temperature (C)
+vappr: -  Vapour Pressure (hPa)
+rhum:  -  Relative Humidity (%)
+msl:   -  Mean Sea Level Pressure (hPa)
+wdsp:  -  Mean Wind Speed (kt)
+wddir: -  Predominant Wind Direction (deg)
+ind:   -  Indicator
