@@ -9,6 +9,7 @@ import numpy as np
 # Some useful constants
 DISTRIBUTION_MAX = 30
 
+
 # Get estimated weibull parameters
 def fit_weibull(data: list):
     dist = scipy.stats.weibull_min
