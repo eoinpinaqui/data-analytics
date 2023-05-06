@@ -3,6 +3,10 @@ import scipy.stats
 from functools import partial
 import matplotlib.pyplot as plt
 
+# Recommended annual average wind speeds
+SMALL_TURBINE = 7.77538
+UTILITY_SCALE_TURBINE = 11.2743
+
 
 # Class for holding all information about a weibull distribution
 class WeibullDistribution:
@@ -14,11 +18,31 @@ class WeibullDistribution:
         self.params = scipy.stats.weibull_min.fit(self.data, floc=0)
         c, loc, scale = self.params
 
-        # Check the validity of the distribution
+        # Get the mean of the distribution
+        self.mean = scipy.stats.weibull_min.mean(self.params[0], self.params[1], self.params[2])
+
+        # Check the validity of the distribution (doesn't work on large data sets)
         self.ks = scipy.stats.kstest(self.data, scipy.stats.weibull_min.rvs(c, loc=loc, scale=scale, size=len(data)))
 
         # Print some info about the fitted distribution
         print(f'{self.name}: Weibull parameters: {self.params}, KS test: {self.ks}')
+
+
+# Plot the means for a list of weibull distributions against recommended thresholds
+def plot_weibull_mean_against_threshold(wbs: list, station: str, year: str):
+    ys = [wb.mean for wb in wbs]
+    xs = [wb.name for wb in wbs]
+
+    fig = plt.figure(figsize=(10, 6))
+    plt.bar(xs, ys, label='Average wind speed')
+    plt.axhline(SMALL_TURBINE, color='red', ls='dotted', label='Recommended minimum average wind speed (small turbine)')
+    plt.axhline(UTILITY_SCALE_TURBINE, color='green', ls='dotted',
+                label='Recommended minimum average wind speed (utility-scale turbine)')
+    plt.title(f'Mean of fitted weibull distributions ({station}, {year})')
+    plt.xlabel('Time period')
+    plt.ylabel('Average wind speed (kts)')
+    plt.legend()
+    plt.show()
 
 
 # Plot the pdf for a weibull distribution
@@ -29,7 +53,7 @@ def plot_weibull_pdf(wb: WeibullDistribution):
     plt.plot(x, pdf, label='PDF')
     plt.hist(wb.data, bins=max_wind_speed, density=True, label='Sample data')
     plt.title(f'PDF of {wb.name}')
-    plt.legend()
+    plt.legend(loc='lower left')
     plt.xlabel('Wind speed (kts)')
     plt.ylabel('Probability')
     plt.show()
