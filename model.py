@@ -35,9 +35,9 @@ def plot_weibull_mean_against_threshold(wbs: list, station: str, year: str):
 
     fig = plt.figure(figsize=(10, 6))
     plt.bar(xs, ys, label='Average wind speed')
-    plt.axhline(SMALL_TURBINE, color='red', ls='dotted', label='Recommended minimum average wind speed (small turbine)')
+    plt.axhline(SMALL_TURBINE, color='red', ls='dotted', label='Recommended annual minimum (small turbine)')
     plt.axhline(UTILITY_SCALE_TURBINE, color='green', ls='dotted',
-                label='Recommended minimum average wind speed (utility-scale turbine)')
+                label='Recommended annual minimum (utility-scale turbine)')
     plt.title(f'Mean of fitted weibull distributions ({station}, {year})')
     plt.xlabel('Time period')
     plt.ylabel('Average wind speed (kts)')
