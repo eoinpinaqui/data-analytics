@@ -18,27 +18,27 @@ class WeibullDistribution:
         self.params = scipy.stats.weibull_min.fit(self.data, floc=0)
         c, loc, scale = self.params
 
-        # Get the mean of the distribution
+        # Get the mean and std of the distribution
         self.mean = scipy.stats.weibull_min.mean(self.params[0], self.params[1], self.params[2])
+        self.std = scipy.stats.weibull_min.std(self.params[0], self.params[1], self.params[2])
 
         # Check the validity of the distribution (doesn't work on large data sets)
         self.ks = scipy.stats.kstest(self.data, scipy.stats.weibull_min.rvs(c, loc=loc, scale=scale, size=len(data)))
 
-        # Print some info about the fitted distribution
-        print(f'{self.name}: Weibull parameters: {self.params}, KS test: {self.ks}')
-
 
 # Plot the means for a list of weibull distributions against recommended thresholds
 def plot_weibull_mean_against_threshold(wbs: list, station: str, year: str):
-    ys = [wb.mean for wb in wbs]
     xs = [wb.name for wb in wbs]
+    means = [wb.mean for wb in wbs]
+    stds = [wb.std for wb in wbs]
 
     fig = plt.figure(figsize=(10, 6))
-    plt.bar(xs, ys, label='Average wind speed')
+    plt.errorbar(xs, means, yerr=stds, fmt='o', color='blue', capsize=5,
+                 label='Mean and standard deviation of wind speed')
     plt.axhline(SMALL_TURBINE, color='red', ls='dotted', label='Recommended annual minimum (small turbine)')
     plt.axhline(UTILITY_SCALE_TURBINE, color='green', ls='dotted',
                 label='Recommended annual minimum (utility-scale turbine)')
-    plt.title(f'Mean of fitted weibull distributions ({station}, {year})')
+    plt.title(f'Mean and standard deviation of fitted weibull distributions ({station}, {year})')
     plt.xlabel('Time period')
     plt.ylabel('Average wind speed (kts)')
     plt.legend()
