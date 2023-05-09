@@ -2,6 +2,9 @@
 from model import WeibullDistribution, plot_weibull_pdf, plot_weibull_mean_against_threshold
 from data_processing import get_monthly_wind_speeds_for_year
 
+# Library imports
+import statistics
+
 # Mappings of station names to their csv files
 stations = {
     'Claremorris': './data/claremorris.csv',
@@ -26,7 +29,7 @@ def read_data(years: list):
             for month in data[year]:
                 year_data += data[year][month]
                 wbs[station][year][month] = WeibullDistribution(f'{month}', data[year][month])
-            wbs[station][year]['full_year'] = WeibullDistribution(f'{year}', year_data)
+            wbs[station][year]['full_year'] = WeibullDistribution(f'{station} {year}', year_data)
             total_5_year += year_data
         wbs[station]['five_year'] = WeibullDistribution(f'{station}', total_5_year)
     return wbs
@@ -39,6 +42,16 @@ def main():
 
     # Plot the PDF for Claremorris over the five years
     plot_weibull_pdf(wbs['Claremorris']['five_year'])
+
+    # Plot the PDF for each year at each station
+    print(' ')
+    for station in wbs:
+        print(f'{station}')
+        for year in wbs[station]:
+            if year == 'five_year':
+                continue
+            print(f'{year} -> V_E_max = {wbs[station][year]["full_year"].v_e_max}, most frequent = {wbs[station][year]["full_year"].most_frequent_wind_speed}, max power in one hour = {wbs[station][year]["full_year"].available_power_in_one_hour}')
+            plot_weibull_pdf(wbs[station][year]['full_year'])
 
     print(' ')
     # Plot the average wind speeds for each station over the entire five year period
