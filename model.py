@@ -22,6 +22,10 @@ class WeibullDistribution:
         self.mean = scipy.stats.weibull_min.mean(self.params[0], self.params[1], self.params[2])
         self.std = scipy.stats.weibull_min.std(self.params[0], self.params[1], self.params[2])
 
+        # Get the probability that the wind speed is greater than the thresholds
+        self.p_gt_small = 1 - scipy.stats.weibull_min.cdf(SMALL_TURBINE, self.params[0], self.params[1], self.params[2])
+        self.p_gt_utility = 1 - scipy.stats.weibull_min.cdf(UTILITY_SCALE_TURBINE, self.params[0], self.params[1], self.params[2])
+
         # Check the validity of the distribution (doesn't work on large data sets)
         self.ks = scipy.stats.kstest(self.data, scipy.stats.weibull_min.rvs(c, loc=loc, scale=scale, size=len(data)))
 
@@ -35,11 +39,11 @@ def plot_weibull_mean_against_threshold(wbs: list, station: str, year: str):
     fig = plt.figure(figsize=(10, 6))
     plt.errorbar(xs, means, yerr=stds, fmt='o', color='blue', capsize=5,
                  label='Mean and standard deviation of wind speed')
-    plt.axhline(SMALL_TURBINE, color='red', ls='dotted', label='Recommended annual minimum (small turbine)')
+    plt.axhline(SMALL_TURBINE, color='red', ls='dotted', label='Small turbine minimum')
     plt.axhline(UTILITY_SCALE_TURBINE, color='green', ls='dotted',
-                label='Recommended annual minimum (utility-scale turbine)')
+                label='Utility-scale turbine minimum')
     plt.title(f'Mean and standard deviation of fitted weibull distributions ({station}, {year})')
-    plt.xlabel('Time period')
+    plt.xlabel('Month')
     plt.ylabel('Average wind speed (kts)')
     plt.legend()
     plt.show()
@@ -47,7 +51,7 @@ def plot_weibull_mean_against_threshold(wbs: list, station: str, year: str):
 
 # Plot the pdf for a weibull distribution
 def plot_weibull_pdf(wb: WeibullDistribution):
-    max_wind_speed = max(wb.data)
+    max_wind_speed = int(max(wb.data))
     x = [i for i in range(max_wind_speed)]
     pdf = scipy.stats.weibull_min.pdf(x, wb.params[0], wb.params[1], wb.params[2])
     plt.plot(x, pdf, label='PDF')

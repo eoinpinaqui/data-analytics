@@ -26,9 +26,9 @@ def read_data(years: list):
             for month in data[year]:
                 year_data += data[year][month]
                 wbs[station][year][month] = WeibullDistribution(f'{month}', data[year][month])
-            wbs[station][year]['full_year'] = WeibullDistribution(f'Full year', year_data)
+            wbs[station][year]['full_year'] = WeibullDistribution(f'{year}', year_data)
             total_5_year += year_data
-            wbs[station]['five_year'] = WeibullDistribution(f'Five year', total_5_year)
+        wbs[station]['five_year'] = WeibullDistribution(f'{station}', total_5_year)
     return wbs
 
 
@@ -37,23 +37,51 @@ def main():
     # Read in all of the data and plot the pdfs
     wbs = read_data([2018, 2019, 2020, 2021, 2022])
 
+    # Plot the PDF for Claremorris over the five years
+    plot_weibull_pdf(wbs['Claremorris']['five_year'])
+
+    print(' ')
+    # Plot the average wind speeds for each station over the entire five year period
+    wbs_to_plot = []
+    for station in wbs:
+        wbs_to_plot.append(wbs[station]['five_year'])
+        print(f'{station} 2018-22 -> '
+              f'Mean = {round(wbs[station]["five_year"].mean, 2)}, '
+              f'Std = {round(wbs[station]["five_year"].std, 2)}, '
+              f'P(X > Small turbine min) = {round(wbs[station]["five_year"].p_gt_small, 2)}, '
+              f'P(X > Utility turbine min) = {round(wbs[station]["five_year"].p_gt_utility, 2)}')
+    plot_weibull_mean_against_threshold(wbs_to_plot, 'All stations', '2018-22')
+
+    print(' ')
+    # Plot the average wind speeds for each station over the individual years
+    for station in wbs:
+        wbs_to_plot = []
+        for year in wbs[station]:
+            if year == 'five_year':
+                continue
+            wbs_to_plot.append(wbs[station][year]['full_year'])
+            print(f'{station} {year} -> '
+                  f'Mean = {round(wbs[station][year]["full_year"].mean, 2)}, '
+                  f'Std = {round(wbs[station][year]["full_year"].std, 2)}, '
+                  f'P(X > Small turbine min) = {round(wbs[station][year]["full_year"].p_gt_small, 2)}, '
+                  f'P(X > Utility turbine min) = {round(wbs[station][year]["full_year"].p_gt_utility, 2)}')
+        plot_weibull_mean_against_threshold(wbs_to_plot, station, '2018-22')
+
     # Plot the average wind speed for each station in the given years
     for station in wbs:
         for year in wbs[station]:
-            if year == 'five:year':
+            if year == 'five_year':
                 continue
-            print(f'\n\n\n\n{station}:')
-            print(f'Total 5 years = '
-                  f'Mean: {wbs[station]["five_year"].mean}, '
-                  f'Std: {wbs[station]["five_year"].std}, '
-                  f'Entries: {len(wbs[station]["five_year"].data)}')
             print(f'\n\n{station} {year}')
             wbs_to_plot = []
             for month in wbs[station][year]:
+                if month == 'full_year':
+                    continue
                 print(f'{wbs[station][year][month].name} = '
-                      f'Mean: {wbs[station][year][month].mean}, '
-                      f'Std: {wbs[station][year][month].std}, '
-                      f'Entries: {len(wbs[station][year][month].data)}')
+                      f'Mean: {round(wbs[station][year][month].mean, 2)}, '
+                      f'Std: {round(wbs[station][year][month].std, 2)}, '
+                      f'P(X > small turbine min): {round(wbs[station][year][month].p_gt_small, 2)}, '
+                      f'P(X > utility turbine min): {round(wbs[station][year][month].p_gt_utility, 2)}')
                 wbs_to_plot.append(wbs[station][year][month])
             plot_weibull_mean_against_threshold(wbs_to_plot, station, year)
 
