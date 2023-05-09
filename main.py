@@ -67,7 +67,7 @@ def main():
                   f'P(X > Utility turbine min) = {round(wbs[station][year]["full_year"].p_gt_utility, 2)}')
         plot_weibull_mean_against_threshold(wbs_to_plot, station, '2018-22')
 
-    # Plot the average wind speed for each station in the given years
+    # Plot the average wind speed for each station over the individual months
     for station in wbs:
         for year in wbs[station]:
             if year == 'five_year':
