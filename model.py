@@ -52,14 +52,44 @@ def plot_weibull_mean_against_threshold(wbs: list, station: str, year: str):
     plt.axhline(UTILITY_SCALE_TURBINE, color='green', ls='dotted',
                 label='Utility-scale turbine minimum')
     plt.title(f'Mean and standard deviation of fitted weibull distributions ({station}, {year})')
-    plt.xlabel('Month')
-    plt.ylabel('Average wind speed (kts)')
+    if station == 'All stations':
+        plt.xlabel('Station')
+    elif year == '2018-22':
+        plt.xlabel('Year')
+    else:
+        plt.xlabel('Month')
+    plt.ylabel('Wind speed (kts)')
     plt.legend()
-    plt.show()
+    plt.savefig(f'./plots/means/{station}/{year}.png')
+    plt.close()
+
+
+# Plot the mean wind speed and max energy wind speed
+def plot_mean_and_max_energy_wind_speeds(wbs: list, station: str, year: str):
+    xs = [wb.name for wb in wbs]
+    means = [wb.mean for wb in wbs]
+    frequents = [wb.most_frequent_wind_speed for wb in wbs]
+    ve_maxs = [wb.v_e_max for wb in wbs]
+
+    fig = plt.figure(figsize=(10, 6))
+    plt.plot(xs, means, label='Mean wind speed')
+    plt.plot(xs, frequents, label='Most frequent wind speed')
+    plt.plot(xs, ve_maxs, label='Wind speed contributing to maximum energy')
+    plt.title(f'Wind speed potential ({station}, {year})')
+    if station == 'All stations':
+        plt.xlabel('Station')
+    elif year == '2018-22':
+        plt.xlabel('Year')
+    else:
+        plt.xlabel('Month')
+    plt.ylabel('Wind speed (kts)')
+    plt.legend()
+    plt.savefig(f'./plots/densities/{station}/{year}.png')
+    plt.close()
 
 
 # Plot the pdf for a weibull distribution
-def plot_weibull_pdf(wb: WeibullDistribution):
+def plot_weibull_pdf(wb: WeibullDistribution, station: str, year: str, month: str):
     max_wind_speed = int(max(wb.data))
     x = [i for i in range(max_wind_speed)]
     pdf = scipy.stats.weibull_min.pdf(x, wb.params[0], wb.params[1], wb.params[2])
@@ -67,12 +97,17 @@ def plot_weibull_pdf(wb: WeibullDistribution):
     fig = plt.figure(figsize=(10, 6))
     plt.plot(x, pdf, label='PDF')
     plt.hist(wb.data, bins=max_wind_speed, density=True, label='Sample data')
-    plt.axvline(wb.v_e_max, ls='dotted', color='green', label='Wind speed producing the maximum energy of the wind')
-    plt.title(f'PDF of {wb.name}')
+    plt.title(f'PDF for {station} ({year} {month})')
     plt.legend(loc='lower left')
     plt.xlabel('Wind speed (kts)')
     plt.ylabel('Probability')
-    plt.show()
+    if year == '':
+        year = '2018-22'
+        month = 'five years'
+    elif month == '':
+        month = 'full year'
+    plt.savefig(f'./plots/pdfs/{station}/{year}/{month}.png')
+    plt.close()
 
 
 # Plot the cdfs for a list of weibull distributions
